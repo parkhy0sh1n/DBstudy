@@ -41,7 +41,7 @@ select employee_id, first_name, last_name
  
 -- 9. employees 테이블을 높은 salary를 받는 사원을 먼저 조회하기
 select employee_id, first_name, last_name, salary
-  from employeesㅓ
+  from employees
  order by salary desc;       -- desc는 생략이 불가능하다.
 
 -- 10. employees 테이블의 사원들을 department_id순으로 조회하고, 동일한 department_id를 가진 사원들은 높은 salary순으로 조회하기
