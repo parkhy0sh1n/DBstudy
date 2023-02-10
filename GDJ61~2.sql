@@ -270,3 +270,5 @@ select e.emp_no, e.name, e.depart, e.gender, e.position, e.hire_date, e.salary
   from (select row_number() over(order by hire_date asc) as rn, emp_no, name, depart, gender, position, hire_date, salary
           from employee_tbl) e
  where e.rn = 3 or e.rn = 4;
+
+
