@@ -159,13 +159,6 @@ select emp_no, name, depart, gender, position, hire_date, salary
                   where d.dept_name = '영업부');
 
 
-/* select절의 서브쿼리 */
-
-
-
-
-
-
 /*
     인라인 뷰(inline view)
     1. 쿼리문에 포함된 뷰(가상 테이블)이다.
@@ -225,26 +218,20 @@ select e.emp_no, e.name
           from employee_tbl) e
  where e.rn = 2;
 
+
 /* from절의 서브쿼리 */
 
--- 1.연봉이 2번째로 높은 사원을 조회하시오.
---   1) 연봉순으로 정렬한다.
---   2) 정렬 결과에 행 번호(rownum)을 붙인다.
---   3) 원하는 행 번호를 조회한다.
+-- 1. 연봉이 2번째로 높은 사원을 조회하시오.
+--    1) 연봉순으로 정렬한다.
+--    2) 정렬 결과에 행 번호(rownum)을 붙인다.
+--    3) 원하는 행 번호를 조회한다.
 
--- 1) rownum 컬럼 사용하기
+-- 1) rownum 칼럼 사용하기
 select e.emp_no, e.name, e.depart, e.gender, e.position, e.hire_date, e.salary
   from (select rownum as rn, a.emp_no, a.name, a.depart, a.gender, a.position, a.hire_date, a.salary
           from (select emp_no, name, depart, gender, position, hire_date, salary
                   from employee_tbl
-         order by salary desc) a) e
- where e.rn = 3;
-
-select e.emp_no, e.name
-  from (select rownum as rn, a.emp_no, a.name
-          from(select emp_no, name
-                 from employee_tbl
-                order by salary desc) a) e
+                 order by salary desc) a) e
  where e.rn = 3;
 
 -- 2) row_number() 함수 사용하기
@@ -253,18 +240,20 @@ select e.emp_no, e.name, e.depart, e.gender, e.position, e.hire_date, e.salary
           from employee_tbl) e
  where e.rn = 3;
 
--- 2. 3~4번째로 입사한 사원을 조회하시오.
+
+-- 2. 3 ~ 4번째로 입사한 사원을 조회하시오.
 --    1) 입사일자순으로 정렬한다.
 --    2) 정렬 결과에 행 번호(rownum)을 붙인다.
 --    3) 원하는 행 번호를 조회한다.
 
--- 1) rownum 컬럼 사용하기
+-- 1) rownum 칼럼 사용하기
 select e.emp_no, e.name, e.depart, e.gender, e.position, e.hire_date, e.salary
   from (select rownum as rn, a.emp_no, a.name, a.depart, a.gender, a.position, a.hire_date, a.salary
           from (select emp_no, name, depart, gender, position, hire_date, salary
                   from employee_tbl
-         order by hire_date desc) a) e
+                 order by hire_date asc) a) e
  where e.rn = 3 or e.rn = 4;
+
 -- 2) row_number() 함수 사용하기
 select e.emp_no, e.name, e.depart, e.gender, e.position, e.hire_date, e.salary
   from (select row_number() over(order by hire_date asc) as rn, emp_no, name, depart, gender, position, hire_date, salary
@@ -272,3 +261,28 @@ select e.emp_no, e.name, e.depart, e.gender, e.position, e.hire_date, e.salary
  where e.rn = 3 or e.rn = 4;
 
 
+/* select절의 서브쿼리 */ 
+/*
+   스칼라 서브쿼리
+   1. select절에서 하나의 값을 반환하는 서브쿼리이다.
+   2. 일치하지 않는 정보는 null값을 반환한다.
+   3. 유사한 방식의 조인은 외부조인이다.
+ */
+
+-- 부서번호가 1인 부서와 같은 지역에서 근무하는 사원번호, 사원명, 부서명을 조회하시오.
+select 
+	   e.emp_no
+	 , e.name
+	 , e.depart
+	 , (select d.dept_name
+	 	  from department_tbl d
+	 	 where d.dept_no = e.depart
+	 	   and d.dept_no = 1)
+  from 
+  	   employee_tbl e;
+
+-- 참고. 조인으로 풀어보기
+select e.emp_no, e.name, e.depart, d.dept_name
+  from department_tbl d right outer join employee_tbl e
+    on d.dept_no = e.depart
+ where d.dept_no = 1;   
