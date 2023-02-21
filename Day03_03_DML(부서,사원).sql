@@ -88,7 +88,7 @@ update department_tbl
  where dept_no = 1;           -- 조건문(여기서 등호는 비교 연산자이다.)
 commit;
 
--- 2. 부서번호(depart)가 1인 부서에 근무하는 사원들의 급여(salary)를 500000원 증갓키시오.
+-- 2. 부서번호(depart)가 1인 부서에 근무하는 사원들의 급여(salary)를 500000원 증가시키시오.
 update employee_tbl
    set salary = salary + 500000
  where depart = 1;
