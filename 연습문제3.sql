@@ -104,42 +104,38 @@ COMMIT;
 
 
 -- 1. 제품 테이블에서 제품명이 '책'인 제품의 카테고리를 '서적'으로 수정하시오.
-UPDATE PRODUCTS 
+UPDATE PRODUCTS
    SET PROD_CATEGORY = '서적'
  WHERE PROD_NAME = '책';
 
 -- 2. 연락처1이 '011'인 사용자의 연락처1을 모두 '010'으로 수정하시오.
-UPDATE USERS 
-   SET USER_MOBILE1 = '010' 
+UPDATE USERS
+   SET USER_MOBILE1 = '010'
  WHERE USER_MOBILE1 = '011';
 
 -- 3. 사용자 테이블에서 사용자번호가 5인 사용자를 삭제하시오.
 --    사용자번호가 5인 사용자의 구매 내역을 먼저 삭제한 뒤 진행하시오.
--- (1) 사용자번호가 5인 사용자의 구매 내역을 먼저 삭제
-DELETE 
-  FROM BUYS 
- WHERE USER_ID = (SELECT USER_ID 
-                    FROM USERS 
+DELETE
+  FROM BUYS
+ WHERE USER_ID = (SELECT USER_ID
+                    FROM USERS
                    WHERE USER_NO = 5);
--- (2) 사용자 테이블에서 사용자번호가 5인 사용자 삭제
-DELETE 
-  FROM USERS 
+
+DELETE
+  FROM USERS
  WHERE USER_NO = 5;
- 
+
 COMMIT;
 
 -- 4. 연락처1이 없는 사용자의 사용자번호, 아이디, 연락처1, 연락처2를 조회하시오.
 SELECT USER_NO, USER_ID, USER_MOBILE1, USER_MOBILE2
   FROM USERS
- WHERE USER_MOBILE1 IS NULL;    -- 빈칸이다.
-
+ WHERE USER_MOBILE1 IS NULL;
 
 -- 5. 연락처2가 '5'로 시작하는 사용자의 사용자번호, 아이디, 연락처1, 연락처2를 조회하시오.
 SELECT USER_NO, USER_ID, USER_MOBILE1, USER_MOBILE2
   FROM USERS
- WHERE USER_MOBILE2 like '5%';  -- like
-
-
+ WHERE USER_MOBILE2 LIKE '5%';
 
 -- 6. 제품을 구매한 사용자의 아이디별 구매횟수를 조회하시오.
 -- 아이디  구매횟수
@@ -147,11 +143,9 @@ SELECT USER_NO, USER_ID, USER_MOBILE1, USER_MOBILE2
 -- PSH     3
 -- KYM     1
 -- LHJ     2
-SELECT USER_ID AS 아이디
-     , COUNT(*) AS 구매횟수
-  FROM BUY
+SELECT USER_ID AS 아이디, COUNT(*) AS 구매횟수
+  FROM BUYS
  GROUP BY USER_ID;
-
 
 -- 7. 제품을 구매한 이력이 있는 고객의 아이디, 고객명, 구매횟수, 총구매액을 조회하시오.
 -- 아이디  고객명  구매횟수  총구매액
@@ -167,7 +161,6 @@ SELECT U.USER_ID AS 아이디
     ON U.USER_ID = B.USER_ID INNER JOIN PRODUCTS P
     ON B.PROD_CODE = P.PROD_CODE
  GROUP BY U.USER_ID, U.USER_NAME;
-
 
 -- 8. 구매 이력과 상관 없이 고객별 구매횟수를 조회하시오.
 --    구매 이력이 없는 경우 구매횟수는 0으로 조회하시오.
@@ -190,23 +183,31 @@ SELECT U.USER_ID AS 아이디
  GROUP BY U.USER_ID, U.USER_NAME
  ORDER BY U.USER_ID;
 
-
 -- 9. 카테고리가 '전자'인 제품을 구매한 고객의 고객명, 제품명, 구매액을 조회하시오.
 -- 고객명  제품명  구매액
 -- 강호동  노트북  1000
 -- 김용만  모니터  200
 -- 박수홍  메모리  800
 -- 박수홍  모니터  1000
-
-
+SELECT U.USER_NAME AS 고객명
+     , P.PROD_NAME AS 제품명
+     , P.PROD_PRICE * B.BUY_AMOUNT AS 구매액
+  FROM USERS U INNER JOIN BUYS B
+    ON U.USER_ID = B.USER_ID INNER JOIN PRODUCTS P
+    ON B.PROD_CODE = P.PROD_CODE
+ WHERE P.PROD_CATEGORY = '전자';
 
 -- 10. 구매횟수가 2회 이상인 고객명과 구매횟수를 조회하시오.
 -- 고객명  구매횟수
 -- 박수홍  3
 -- 이휘재  2
 -- 강호동  3
-
-
+SELECT U.USER_NAME AS 고객명
+     , COUNT(*) AS 구매횟수
+  FROM USERS U INNER JOIN BUYS B
+    ON U.USER_ID = B.USER_ID
+ GROUP BY U.USER_NAME, U.USER_ID
+HAVING COUNT(*) >= 2;
 
 -- 11. 모든 제품의 제품명과 판매횟수를 조회하시오.
 --     판매 이력이 없는 제품은 0으로 조회하시오.
@@ -218,8 +219,11 @@ SELECT U.USER_ID AS 아이디
 -- 모니터  2
 -- 청바지  2
 -- 노트북  1
-
-
+SELECT P.PROD_NAME AS 제품명
+     , COUNT(B.BUY_NO) AS 판매횟수
+  FROM PRODUCTS P LEFT OUTER JOIN BUYS B
+    ON P.PROD_CODE = B.PROD_CODE
+ GROUP BY P.PROD_CODE, P.PROD_NAME;
 
 -- 12. 어떤 고객이 어떤 제품을 구매했는지 조회하시오.
 --     구매 이력이 없는 고객도 조회되도록 처리하고 고객아이디로 오름차순 정렬하시오.
@@ -239,15 +243,16 @@ SELECT U.USER_ID AS 아이디
 -- 신동엽   NULL
 -- 유재석   NULL
 
--- (1) 외부 조인으로 풀어보기
+
+-- 외부 조인으로 풀어보기
 SELECT U.USER_NAME AS 고객명
      , P.PROD_NAME AS 제품명
   FROM USERS U LEFT OUTER JOIN BUYS B
     ON U.USER_ID = B.USER_ID LEFT OUTER JOIN PRODUCTS P
     ON B.PROD_CODE = P.PROD_CODE
  ORDER BY U.USER_ID;
-    
--- (2) 스칼라 서브쿼리로 풀어보기
+
+-- 스칼라 서브쿼리로 풀어보기
 SELECT U.USER_NAME AS 고객명
      , (SELECT P.PROD_NAME
           FROM PRODUCTS P

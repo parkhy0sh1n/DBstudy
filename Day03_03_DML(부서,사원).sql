@@ -12,9 +12,11 @@
 
 -- 참고. 자격증에서는 DML을 insert, update, delete + select로 보는 경우도 있다.
 
+-- 테이블 삭제
 drop table employee_tbl;
 drop table department_tbl;
 
+-- 테이블 생성
 create table department_tbl (
     dept_no   number             not null,
     dept_name varchar2(15 byte)  not null,
@@ -75,6 +77,7 @@ create sequence employee_seq
     start with 1001  
     nocache;
 
+-- 데이터 입력하기
 insert into employee_tbl(emp_no, name, depart, position, gender, hire_date, salary) values(employee_seq.nextval, '구창민', 1, '과장', 'M', '95/05/01','5000000');
 insert into employee_tbl(emp_no, name, depart, position, gender, hire_date, salary) values(employee_seq.nextval, '김민서', 1, '과장', 'M', '17/09/01','2500000');
 insert into employee_tbl(emp_no, name, depart, position, gender, hire_date, salary) values(employee_seq.nextval, '이은영', 2, '과장', 'M', '90/09/01','5500000');
